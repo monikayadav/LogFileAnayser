@@ -22,6 +22,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.init.DataSourceInitializer;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
@@ -69,7 +71,13 @@ public class BatchConfiguration {
 	@Bean
 	public Step loadAndProcessStep(JdbcBatchItemWriter<ServerLogEntry> writer) {
 		return stepBuilderFactory.get("loadAndProcessStep").<ServerLogEntry, ServerLogEntry>chunk(IConstants.CHUNK_SIZE)
-				.reader(reader()).processor(processor()).writer(writer).build();
+				.reader(reader()).processor(processor()).writer(writer).taskExecutor(taskExecutor()).build();
+	}
+
+	private TaskExecutor taskExecutor() {
+		SimpleAsyncTaskExecutor asyncTaskExecutor = new SimpleAsyncTaskExecutor("spring_batch");
+		asyncTaskExecutor.setConcurrencyLimit(5);
+		return asyncTaskExecutor;
 	}
 
 	@Value("org/springframework/batch/core/schema-drop-hsqldb.sql")
