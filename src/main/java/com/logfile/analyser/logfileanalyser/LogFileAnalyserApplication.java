@@ -26,7 +26,7 @@ public class LogFileAnalyserApplication {
 			log.error("No Json file path provided");
 			throw new FileNotFoundException();
 		}
-		String inFilePath = "../log-file-analyser/src/main/resources/input.txt";
+		String inFilePath = args[0];
 		File inFile = new File(inFilePath);
 		if (!inFile.exists()) {
 			log.error("Json file does not exist. Provided Path:" + inFilePath);
